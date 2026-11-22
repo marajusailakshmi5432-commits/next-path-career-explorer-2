@@ -19,52 +19,52 @@ export interface GeneratedRole {
 
 const ROLE_CATEGORIES = [
   'All',
-  'Tech / IT',
-  'Non-Tech / Business',
-  'Medical / Healthcare',
-  'Commerce / Finance',
-  'Arts / Design',
-  'Government / Others',
+  'Tech',
+  'Non-Tech',
+  'Medical',
+  'Commerce',
+  'Arts',
+  'Government',
 ] as const;
 
 const TECH_SKILL_POOLS: Record<string, string[]> = {
-  'Tech / IT': ['Python', 'Java', 'SQL', 'JavaScript', 'React', 'Node.js', 'Cloud Basics', 'Data Structures', 'HTML/CSS', 'Git'],
-  'Non-Tech / Business': ['Excel', 'PowerPoint', 'CRM Software', 'Data Analysis', 'Google Sheets', 'Email Marketing', 'SEO Basics', 'Social Media Tools', 'Market Research', 'Business Writing'],
-  'Medical / Healthcare': ['Patient Care', 'Anatomy', 'Pharmacology', 'Medical Records', 'Infection Control', 'First Aid', 'Vital Signs', 'Medical Terminology', 'Health & Safety', 'Clinical Procedures'],
-  'Commerce / Finance': ['Tally', 'Accounting', 'Financial Analysis', 'Taxation', 'Auditing', 'Banking Operations', 'GST', 'Payroll', 'Bookkeeping', 'Financial Reporting'],
-  'Arts / Design': ['Graphic Design', 'Photoshop', 'Illustrator', 'Figma', 'Content Writing', 'Video Editing', 'Photography', 'Typography', 'Color Theory', 'UI Design'],
-  'Government / Others': ['General Knowledge', 'Current Affairs', 'Aptitude', 'Reasoning', 'English', 'Polity', 'History', 'Geography', 'Public Administration', 'Law Basics'],
+  'Tech': ['Python', 'Java', 'SQL', 'JavaScript', 'React', 'Node.js', 'Cloud Basics', 'Data Structures', 'HTML/CSS', 'Git'],
+  'Non-Tech': ['Excel', 'PowerPoint', 'CRM Software', 'Data Analysis', 'Google Sheets', 'Email Marketing', 'SEO Basics', 'Social Media Tools', 'Market Research', 'Business Writing'],
+  'Medical': ['Patient Care', 'Anatomy', 'Pharmacology', 'Medical Records', 'Infection Control', 'First Aid', 'Vital Signs', 'Medical Terminology', 'Health & Safety', 'Clinical Procedures'],
+  'Commerce': ['Tally', 'Accounting', 'Financial Analysis', 'Taxation', 'Auditing', 'Banking Operations', 'GST', 'Payroll', 'Bookkeeping', 'Financial Reporting'],
+  'Arts': ['Graphic Design', 'Photoshop', 'Illustrator', 'Figma', 'Content Writing', 'Video Editing', 'Photography', 'Typography', 'Color Theory', 'UI Design'],
+  'Government': ['General Knowledge', 'Current Affairs', 'Aptitude', 'Reasoning', 'English', 'Polity', 'History', 'Geography', 'Public Administration', 'Law Basics'],
 };
 
 const TOOL_POOLS: Record<string, string[]> = {
-  'Tech / IT': ['VS Code', 'GitHub', 'Postman', 'Docker'],
-  'Non-Tech / Business': ['MS Office', 'Slack', 'Trello', 'Google Workspace'],
-  'Medical / Healthcare': ['Hospital Management System', 'Medical Devices', 'Lab Equipment', 'Patient Monitors'],
-  'Commerce / Finance': ['Tally ERP', 'QuickBooks', 'SAP', 'Excel Advanced'],
-  'Arts / Design': ['Adobe CC', 'Canva', 'Figma', 'CorelDRAW'],
-  'Government / Others': ['MS Office', 'Online Exam Portals', 'Typing Software', 'Email'],
+  'Tech': ['VS Code', 'GitHub', 'Postman', 'Docker'],
+  'Non-Tech': ['MS Office', 'Slack', 'Trello', 'Google Workspace'],
+  'Medical': ['Hospital Management System', 'Medical Devices', 'Lab Equipment', 'Patient Monitors'],
+  'Commerce': ['Tally ERP', 'QuickBooks', 'SAP', 'Excel Advanced'],
+  'Arts': ['Adobe CC', 'Canva', 'Figma', 'CorelDRAW'],
+  'Government': ['MS Office', 'Online Exam Portals', 'Typing Software', 'Email'],
 };
 
 const SOFT_SKILLS = ['Communication', 'Problem Solving', 'Teamwork', 'Time Management', 'Leadership', 'Adaptability'];
 
 const POPULAR_ROLES: Record<string, string[]> = {
   'All': ['Software Engineer', 'Data Analyst', 'Financial Analyst', 'Staff Nurse', 'HR Recruiter', 'Digital Marketing Executive'],
-  'Tech / IT': ['Software Engineer', 'Data Analyst', 'Full Stack Developer', 'IT Support Technician', 'DevOps Engineer', 'QA Tester'],
-  'Non-Tech / Business': ['HR Recruiter', 'Operations Executive', 'Business Analyst', 'Project Coordinator', 'Sales Executive', 'Marketing Manager'],
-  'Medical / Healthcare': ['Staff Nurse', 'Pharmacist', 'Lab Technician', 'Medical Officer', 'Healthcare Administrator', 'Radiologist'],
-  'Commerce / Finance': ['Financial Analyst', 'Accountant', 'Bank Associate', 'Tax Consultant', 'Audit Assistant', 'Payroll Executive'],
-  'Arts / Design': ['Content Writer', 'Graphic Designer', 'UI/UX Designer', 'Social Media Manager', 'Video Editor', 'Photographer'],
-  'Government / Others': ['IAS Officer', 'Bank PO', 'SSC Clerk', 'Forest Officer', 'Police Constable', 'Teacher'],
+  'Tech': ['Software Engineer', 'Data Analyst', 'Full Stack Developer', 'IT Support Technician', 'DevOps Engineer', 'QA Tester'],
+  'Non-Tech': ['HR Recruiter', 'Operations Executive', 'Business Analyst', 'Project Coordinator', 'Sales Executive', 'Marketing Manager'],
+  'Medical': ['Staff Nurse', 'Pharmacist', 'Lab Technician', 'Medical Officer', 'Healthcare Administrator', 'Radiologist'],
+  'Commerce': ['Financial Analyst', 'Accountant', 'Bank Associate', 'Tax Consultant', 'Audit Assistant', 'Payroll Executive'],
+  'Arts': ['Content Writer', 'Graphic Designer', 'UI/UX Designer', 'Social Media Manager', 'Video Editor', 'Photographer'],
+  'Government': ['IAS Officer', 'Bank PO', 'SSC Clerk', 'Forest Officer', 'Police Constable', 'Teacher'],
 };
 
 function guessCategory(roleName: string): string {
   const lower = roleName.toLowerCase();
-  if (/engineer|developer|software|data|program|coding|it |tech|devops|qa|tester|admin|cyber|cloud|ai |ml /i.test(lower)) return 'Tech / IT';
-  if (/nurse|pharma|lab|medical|doctor|health|patient|clinic|radiolog|surgeon|dental|physio/i.test(lower)) return 'Medical / Healthcare';
-  if (/financ|account|bank|tax|audit|payroll|tally|ca |gst|investment|insurance|loan/i.test(lower)) return 'Commerce / Finance';
-  if (/design|content|graphic|writer|video|photo|media|art|ui|ux|creative|editor/i.test(lower)) return 'Arts / Design';
-  if (/ias|ips|ssc|upsc|government|govt|police|forest|teacher|clerk|po |officer|public/i.test(lower)) return 'Government / Others';
-  return 'Non-Tech / Business';
+  if (/engineer|developer|software|data|program|coding|it |tech|devops|qa|tester|admin|cyber|cloud|ai |ml /i.test(lower)) return 'Tech';
+  if (/nurse|pharma|lab|medical|doctor|health|patient|clinic|radiolog|surgeon|dental|physio/i.test(lower)) return 'Medical';
+  if (/financ|account|bank|tax|audit|payroll|tally|ca |gst|investment|insurance|loan/i.test(lower)) return 'Commerce';
+  if (/design|content|graphic|writer|video|photo|media|art|ui|ux|creative|editor/i.test(lower)) return 'Arts';
+  if (/ias|ips|ssc|upsc|government|govt|police|forest|teacher|clerk|po |officer|public/i.test(lower)) return 'Government';
+  return 'Non-Tech';
 }
 
 function pickN<T>(arr: T[], n: number): T[] {
@@ -74,8 +74,8 @@ function pickN<T>(arr: T[], n: number): T[] {
 
 export function generateRole(name: string, selectedSkills: string[] = []): GeneratedRole {
   const category = guessCategory(name);
-  const techPool = TECH_SKILL_POOLS[category] ?? TECH_SKILL_POOLS['Non-Tech / Business'];
-  const toolPool = TOOL_POOLS[category] ?? TOOL_POOLS['Non-Tech / Business'];
+  const techPool = TECH_SKILL_POOLS[category] ?? TECH_SKILL_POOLS['Non-Tech'];
+  const toolPool = TOOL_POOLS[category] ?? TOOL_POOLS['Non-Tech'];
 
   const technicalSkills = pickN(techPool, 6);
   const tools = pickN(toolPool, 3);
@@ -88,21 +88,21 @@ export function generateRole(name: string, selectedSkills: string[] = []): Gener
   const readiness = Math.round((matched.length / skills.length) * 100);
 
   const salaryRanges: Record<string, string> = {
-    'Tech / IT': '3.5 - 12 LPA',
-    'Non-Tech / Business': '2.5 - 8 LPA',
-    'Medical / Healthcare': '2.5 - 7 LPA',
-    'Commerce / Finance': '3 - 8 LPA',
-    'Arts / Design': '2.5 - 7 LPA',
-    'Government / Others': '3 - 10 LPA',
+    'Tech': '3.5 - 12 LPA',
+    'Non-Tech': '2.5 - 8 LPA',
+    'Medical': '2.5 - 7 LPA',
+    'Commerce': '3 - 8 LPA',
+    'Arts': '2.5 - 7 LPA',
+    'Government': '3 - 10 LPA',
   };
 
   const descriptions: Record<string, string> = {
-    'Tech / IT': `A ${name} builds, tests, and maintains technology solutions using programming and problem-solving skills.`,
-    'Non-Tech / Business': `A ${name} manages business operations, coordinates teams, and helps the organization run smoothly.`,
-    'Medical / Healthcare': `A ${name} provides care, support, or expertise in a healthcare setting to keep patients safe and healthy.`,
-    'Commerce / Finance': `A ${name} manages money, records, and financial processes to keep a business financially healthy.`,
-    'Arts / Design': `A ${name} creates visual, written, or multimedia content that communicates ideas and engages audiences.`,
-    'Government / Others': `A ${name} serves in a public sector role supporting government functions and public services.`,
+    'Tech': `A ${name} builds, tests, and maintains technology solutions using programming and problem-solving skills.`,
+    'Non-Tech': `A ${name} manages business operations, coordinates teams, and helps the organization run smoothly.`,
+    'Medical': `A ${name} provides care, support, or expertise in a healthcare setting to keep patients safe and healthy.`,
+    'Commerce': `A ${name} manages money, records, and financial processes to keep a business financially healthy.`,
+    'Arts': `A ${name} creates visual, written, or multimedia content that communicates ideas and engages audiences.`,
+    'Government': `A ${name} serves in a public sector role supporting government functions and public services.`,
   };
 
   return {
@@ -144,12 +144,12 @@ function generateRoleQuestions(roleName: string, category: string): { question: 
   ];
 
   const catSpecific: Record<string, { question: string; answer: string }> = {
-    'Tech / IT': { question: `What programming languages or tools are you comfortable with?`, answer: `I am comfortable with the key tools and languages relevant to the ${roleName} role. I have practiced them through projects and exercises and I am quick to learn new technologies.` },
-    'Non-Tech / Business': { question: `How do you handle a difficult situation at work?`, answer: `I stay calm, try to understand the root cause, and communicate with my team to find the best solution. I focus on resolving the issue rather than worrying about it.` },
-    'Medical / Healthcare': { question: `How do you handle a medical emergency or a difficult patient?`, answer: `I stay calm, follow established protocols, and prioritize patient safety. I communicate clearly with the team and the patient to ensure the best possible care.` },
-    'Commerce / Finance': { question: `How do you ensure accuracy in your financial work?`, answer: `I double-check all calculations, cross-reference with source data, and follow standard procedures. I keep organized records so errors can be caught and fixed quickly.` },
-    'Arts / Design': { question: `Can you walk us through your creative process?`, answer: `I start by understanding the goal and audience, then research and brainstorm ideas, create drafts, and refine based on feedback. I always keep the end user in mind.` },
-    'Government / Others': { question: `How do you prepare for a competitive exam or government role?`, answer: `I create a study plan, cover subjects systematically, practice previous papers, and stay updated on current affairs. I stay consistent and revise regularly.` },
+    'Tech': { question: `What programming languages or tools are you comfortable with?`, answer: `I am comfortable with the key tools and languages relevant to the ${roleName} role. I have practiced them through projects and exercises and I am quick to learn new technologies.` },
+    'Non-Tech': { question: `How do you handle a difficult situation at work?`, answer: `I stay calm, try to understand the root cause, and communicate with my team to find the best solution. I focus on resolving the issue rather than worrying about it.` },
+    'Medical': { question: `How do you handle a medical emergency or a difficult patient?`, answer: `I stay calm, follow established protocols, and prioritize patient safety. I communicate clearly with the team and the patient to ensure the best possible care.` },
+    'Commerce': { question: `How do you ensure accuracy in your financial work?`, answer: `I double-check all calculations, cross-reference with source data, and follow standard procedures. I keep organized records so errors can be caught and fixed quickly.` },
+    'Arts': { question: `Can you walk us through your creative process?`, answer: `I start by understanding the goal and audience, then research and brainstorm ideas, create drafts, and refine based on feedback. I always keep the end user in mind.` },
+    'Government': { question: `How do you prepare for a competitive exam or government role?`, answer: `I create a study plan, cover subjects systematically, practice previous papers, and stay updated on current affairs. I stay consistent and revise regularly.` },
   };
 
   return [...general.slice(0, 4), catSpecific[category] ?? general[4]];
