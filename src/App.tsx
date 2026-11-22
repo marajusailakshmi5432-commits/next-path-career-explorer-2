@@ -3,6 +3,7 @@ import { Hero } from '@/components/Hero';
 import { Footer } from '@/components/Footer';
 import { SkillPicker } from '@/components/SkillPicker';
 import { RoleExplorer } from '@/components/RoleExplorer';
+import { CompanyPrep } from '@/components/CompanyPrep';
 
 const GENERAL_SKILLS = [
   'Communication', 'MS Excel', 'Problem Solving', 'Customer Support',
@@ -67,6 +68,8 @@ export default function App() {
           savedRoles={savedRoles}
           onSaveRole={handleSaveRole}
         />
+
+        <CompanyPrep selectedSkills={selectedSkills} />
       </main>
 
       <Footer />
