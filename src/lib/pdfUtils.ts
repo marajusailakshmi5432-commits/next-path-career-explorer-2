@@ -73,10 +73,13 @@ export async function downloadCompanyInterviewPDF(company: GeneratedCompany): Pr
   }
 
   // Title
-  drawText(`NexPath - ${company.name} Interview Prep`, 20, boldFont, NAVY);
+  drawText('NexPath - Company Interview Prep', 20, boldFont, NAVY);
   y -= 6;
   page.drawRectangle({ x: margin, y, width: contentWidth, height: 2, color: TEAL });
-  y -= 20;
+  y -= 22;
+
+  drawText(company.name, 14, boldFont, TEAL);
+  y -= 8;
 
   // Company Details
   drawHeading('Company Details');
