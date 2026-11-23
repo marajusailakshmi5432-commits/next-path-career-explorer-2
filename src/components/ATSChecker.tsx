@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import {
-  Upload, FileText, ClipboardPaste, ScanLine, Check, X,
+  Upload, FileText, ScanLine, Check, X,
   Lightbulb, AlertTriangle, Loader2,
 } from 'lucide-react';
 import { SectionHeader } from './SkillPicker';
@@ -20,25 +20,24 @@ export function ATSChecker() {
     const file = e.target.files?.[0];
     if (!file) return;
     setError('');
+    setResult(null);
     setFileName(file.name);
+    setLoading(true);
 
-    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-      setLoading(true);
-      try {
-        const text = await extractPdfText(file);
-        setResumeText(text);
-        runAnalysis(text);
-      } catch {
-        setError('Could not read this PDF. Try pasting your resume text instead.');
-      } finally {
-        setLoading(false);
+    try {
+      const text = await extractPdfText(file);
+      if (text.length < 20) {
+        setError('Could not read PDF — no extractable text found. Make sure your resume is a text-based PDF, not a scanned image.');
+        setResumeText('');
+        return;
       }
-    } else if (file.type.startsWith('text/')) {
-      const text = await file.text();
       setResumeText(text);
-      runAnalysis(text);
-    } else {
-      setError('Please upload a PDF or text file.');
+      setResult(analyzeResume(text));
+    } catch {
+      setError('Could not read PDF. Please try a different file or make sure it is a valid text-based PDF.');
+      setResumeText('');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -58,21 +57,6 @@ export function ATSChecker() {
       fullText += pageText + ' ';
     }
     return fullText.trim();
-  }
-
-  function runAnalysis(text: string) {
-    const trimmed = text.trim();
-    if (trimmed.length < 20) {
-      setError('Resume text is too short to analyze. Please paste more content.');
-      setResult(null);
-      return;
-    }
-    setError('');
-    setResult(analyzeResume(trimmed));
-  }
-
-  function handleAnalyze() {
-    runAnalysis(resumeText);
   }
 
   function handleClear() {
@@ -105,76 +89,53 @@ export function ATSChecker() {
         <SectionHeader
           step={0}
           title="ATS Resume Score Checker"
-          subtitle="Upload your resume PDF or paste your resume text to get an instant ATS compatibility score, missing keywords, and tips to improve."
+          subtitle="Upload your resume PDF to get an instant ATS compatibility score, missing keywords, and tips to improve."
         />
 
         <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-6">
-          {/* Upload + Paste tabs */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            {/* Upload zone */}
-            <div>
-              <p className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-navy-900">
-                <Upload className="h-4 w-4 text-navy-600" />
-                Upload Resume PDF
+          {/* Upload zone */}
+          <div>
+            <p className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-navy-900">
+              <Upload className="h-4 w-4 text-navy-600" />
+              Upload Resume PDF
+            </p>
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-10 text-center transition hover:border-teal-400 hover:bg-teal-50"
+            >
+              <FileText className="h-10 w-10 text-slate-400" />
+              <p className="mt-3 text-sm font-medium text-slate-600">
+                Click to upload your resume PDF
               </p>
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center transition hover:border-teal-400 hover:bg-teal-50"
-              >
-                <FileText className="h-8 w-8 text-slate-400" />
-                <p className="mt-2 text-sm font-medium text-slate-600">
-                  Click to upload PDF
-                </p>
-                <p className="mt-1 text-xs text-slate-400">
-                  We'll extract the text automatically
-                </p>
-                {fileName && (
-                  <p className="mt-2 flex items-center gap-1 text-xs font-semibold text-teal-700">
-                    <Check className="h-3 w-3" />
-                    {fileName}
-                  </p>
-                )}
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf,.txt,application/pdf,text/plain"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-            </div>
-
-            {/* Paste zone */}
-            <div>
-              <p className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-navy-900">
-                <ClipboardPaste className="h-4 w-4 text-navy-600" />
-                Paste Resume Text
+              <p className="mt-1 text-xs text-slate-400">
+                Text-based PDF only — we&apos;ll extract the text automatically
               </p>
-              <textarea
-                value={resumeText}
-                onChange={(e) => setResumeText(e.target.value)}
-                placeholder="Paste your full resume text here..."
-                rows={8}
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
-              />
+              {fileName && (
+                <p className="mt-2 flex items-center gap-1 text-xs font-semibold text-teal-700">
+                  <Check className="h-3 w-3" />
+                  {fileName}
+                </p>
+              )}
             </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,application/pdf"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
           </div>
 
+          {/* Debug: extracted character count */}
+          {resumeText && (
+            <p className="mt-3 text-xs font-medium text-slate-500">
+              Extracted {result?.charCount ?? resumeText.length} characters from PDF
+            </p>
+          )}
+
           {/* Actions */}
-          <div className="mt-4 flex flex-wrap gap-3">
-            <button
-              onClick={handleAnalyze}
-              disabled={!resumeText.trim() || loading}
-              className="flex items-center justify-center gap-2 rounded-xl bg-navy-800 px-6 py-3 text-sm font-semibold text-white transition hover:bg-navy-900 disabled:opacity-50"
-            >
-              {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <ScanLine className="h-4 w-4" />
-              )}
-              {loading ? 'Scanning...' : 'Check ATS Score'}
-            </button>
-            {(resumeText || result) && (
+          {(resumeText || result || fileName) && (
+            <div className="mt-4 flex flex-wrap gap-3">
               <button
                 onClick={handleClear}
                 className="flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-600 ring-1 ring-slate-300 transition hover:bg-slate-50"
@@ -182,8 +143,15 @@ export function ATSChecker() {
                 <X className="h-4 w-4" />
                 Clear
               </button>
-            )}
-          </div>
+            </div>
+          )}
+
+          {loading && (
+            <div className="mt-4 flex items-center gap-2 rounded-xl bg-navy-50 px-4 py-3 text-sm font-medium text-navy-700 ring-1 ring-navy-200">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Extracting text from PDF...
+            </div>
+          )}
 
           {error && (
             <div className="mt-3 flex items-center gap-2 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-700 ring-1 ring-amber-200">

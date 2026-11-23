@@ -1,111 +1,88 @@
-// ATS resume scoring logic — analyzes resume text for keyword presence,
-// section completeness, and formatting indicators.
+// ATS resume scoring logic — 100-point breakdown:
+//   - 12 skill keywords x 5 points = 60
+//   - Experience section keywords = 10
+//   - Education section keywords = 10
+//   - Action verbs = 10
+//   - Length > 200 words = 10
 
 export interface ATSResult {
   score: number;
   matchedKeywords: string[];
   missingKeywords: string[];
   tips: string[];
+  charCount: number;
 }
 
-const TECHNICAL_KEYWORDS = [
-  'Python', 'Java', 'JavaScript', 'React', 'Node.js', 'SQL', 'HTML', 'CSS',
-  'TypeScript', 'AWS', 'Docker', 'Git', 'Linux', 'API', 'REST', 'MongoDB',
-  'PostgreSQL', 'MySQL', 'C++', 'C#', '.NET', 'Spring', 'Django', 'Flask',
-  'TensorFlow', 'Machine Learning', 'Data Analysis', 'Excel', 'Power BI',
-  'Tableau', 'PowerPoint', 'SEO', 'Digital Marketing', 'Tally', 'Accounting',
-  'Financial Analysis', 'GST', 'Auditing', 'Communication', 'Leadership',
-  'Project Management', 'Teamwork', 'Problem Solving', 'Agile', 'Scrum',
-  'Customer Service', 'Sales', 'Operations', 'Quality Assurance', 'Testing',
+const SKILL_KEYWORDS = [
+  'Python', 'Java', 'JavaScript', 'React', 'SQL', 'AWS',
+  'Docker', 'Git', 'Node.js', 'TypeScript', 'Machine Learning', 'Communication',
 ];
 
-const SECTION_INDICATORS = [
-  { label: 'Experience', patterns: ['experience', 'work history', 'employment', 'professional experience'] },
-  { label: 'Education', patterns: ['education', 'degree', 'university', 'college', 'academic'] },
-  { label: 'Skills', patterns: ['skills', 'technical skills', 'core competencies', 'proficiencies'] },
-  { label: 'Projects', patterns: ['project', 'projects', 'portfolio'] },
-  { label: 'Contact', patterns: ['email', 'phone', 'contact', '@'] },
+const EXPERIENCE_PATTERNS = [
+  'experience', 'work history', 'employment', 'professional experience',
+  'intern', 'worked at', 'responsible for', 'managed', 'developed',
 ];
 
-const NEGATIVE_INDICATORS = [
-  'table', 'graphic', 'image', 'chart', 'text box', 'header', 'footer',
-  'column', 'multiple columns', 'photo', 'picture',
+const EDUCATION_PATTERNS = [
+  'education', 'degree', 'university', 'college', 'academic',
+  'bachelor', 'master', 'phd', 'diploma', 'certification',
 ];
 
-function extractKeywords(text: string): { matched: string[]; missing: string[] } {
-  const lowerText = text.toLowerCase();
-  const matched: string[] = [];
-  const missing: string[] = [];
+const ACTION_VERBS = [
+  'achieved', 'built', 'created', 'designed', 'developed', 'implemented',
+  'improved', 'led', 'managed', 'launched', 'optimized', 'delivered',
+  'analyzed', 'established', 'coordinated', 'streamlined', 'increased',
+  'reduced', 'spearheaded', 'automated',
+];
 
-  for (const kw of TECHNICAL_KEYWORDS) {
-    if (lowerText.includes(kw.toLowerCase())) {
-      matched.push(kw);
-    } else {
-      missing.push(kw);
-    }
-  }
-
-  return { matched, missing };
-}
-
-function checkSections(text: string): string[] {
-  const lowerText = text.toLowerCase();
-  return SECTION_INDICATORS.filter((s) =>
-    s.patterns.some((p) => lowerText.includes(p))
-  ).map((s) => s.label);
-}
-
-function checkNegativeIndicators(text: string): string[] {
-  const lowerText = text.toLowerCase();
-  return NEGATIVE_INDICATORS.filter((ind) => lowerText.includes(ind));
+function findMatches(text: string, keywords: string[]): string[] {
+  const lower = text.toLowerCase();
+  return keywords.filter((kw) => lower.includes(kw.toLowerCase()));
 }
 
 function generateTips(
-  missingKeywords: string[],
-  foundSections: string[],
-  negatives: string[],
-  wordCount: number
+  missingSkills: string[],
+  hasExperience: boolean,
+  hasEducation: boolean,
+  hasActionVerbs: boolean,
+  wordCount: number,
 ): string[] {
   const tips: string[] = [];
 
-  const topMissing = missingKeywords.slice(0, 5);
+  const topMissing = missingSkills.slice(0, 5);
   if (topMissing.length > 0) {
     tips.push(
-      `Add relevant keywords from your field. Consider including: ${topMissing.join(', ')}. ATS systems scan for these terms to rank your resume.`
+      `Add relevant technical keywords to your resume. Consider including: ${topMissing.join(', ')}. ATS systems scan for these terms to rank your resume.`,
     );
   }
 
-  const missingSections = SECTION_INDICATORS.filter(
-    (s) => !foundSections.includes(s.label)
-  ).map((s) => s.label);
-
-  if (missingSections.length > 0) {
+  if (!hasExperience) {
     tips.push(
-      `Your resume may be missing these standard sections: ${missingSections.join(', ')}. Use clear section headings so ATS can parse them.`
+      'Add a clear "Experience" or "Work History" section with job titles, company names, and dates. Use phrases like "responsible for" or "developed" to describe what you did.',
     );
   }
 
-  if (negatives.length > 0) {
+  if (!hasEducation) {
     tips.push(
-      `Avoid using ${negatives.join(', ')} in your resume. ATS parsers struggle with complex formatting — use a simple, single-column layout with standard fonts.`
+      'Include an "Education" section listing your degree, university/college name, and graduation year. ATS parsers look for words like "degree", "university", or "bachelor".',
+    );
+  }
+
+  if (!hasActionVerbs) {
+    tips.push(
+      'Start bullet points with strong action verbs like "Developed", "Managed", "Improved", or "Delivered". This signals impact and leadership to both ATS and recruiters.',
     );
   }
 
   if (wordCount < 200) {
     tips.push(
-      'Your resume seems short. Aim for 300-500 words with specific achievements and measurable results (e.g., "Improved efficiency by 20%") rather than vague duty lists.'
+      'Your resume seems short. Aim for 300-500 words with specific achievements and measurable results (e.g., "Improved efficiency by 20%") rather than vague duty lists.',
     );
   }
 
   if (tips.length < 3) {
     tips.push(
-      'Tailor your resume for each job application by matching keywords from the job description. Use exact phrases from the posting to improve your ATS score.'
-    );
-  }
-
-  if (tips.length < 3) {
-    tips.push(
-      'Use standard section titles (Experience, Education, Skills) and a clean format. Save as a standard PDF or DOCX — avoid images, text boxes, or unusual fonts.'
+      'Tailor your resume for each job application by matching keywords from the job description. Use exact phrases from the posting to improve your ATS score.',
     );
   }
 
@@ -114,45 +91,46 @@ function generateTips(
 
 export function analyzeResume(text: string): ATSResult {
   const trimmed = text.trim();
+  const charCount = trimmed.length;
   const wordCount = trimmed ? trimmed.split(/\s+/).length : 0;
 
-  const { matched, missing } = extractKeywords(trimmed);
-  const foundSections = checkSections(trimmed);
-  const negatives = checkNegativeIndicators(trimmed);
+  // 1) Skills: 12 keywords x 5 points = 60
+  const matchedSkills = findMatches(trimmed, SKILL_KEYWORDS);
+  const missingSkills = SKILL_KEYWORDS.filter(
+    (kw) => !matchedSkills.some((m) => m.toLowerCase() === kw.toLowerCase()),
+  );
+  const skillPoints = matchedSkills.length * 5;
 
-  let score = 0;
+  // 2) Experience keywords: 10 points
+  const matchedExperience = findMatches(trimmed, EXPERIENCE_PATTERNS);
+  const experiencePoints = matchedExperience.length > 0 ? 10 : 0;
 
-  // Keyword density: up to 50 points
-  const keywordRatio = matched.length / TECHNICAL_KEYWORDS.length;
-  score += Math.round(keywordRatio * 50);
+  // 3) Education keywords: 10 points
+  const matchedEducation = findMatches(trimmed, EDUCATION_PATTERNS);
+  const educationPoints = matchedEducation.length > 0 ? 10 : 0;
 
-  // Section completeness: up to 30 points (6 points per section found)
-  score += Math.min(foundSections.length * 6, 30);
+  // 4) Action verbs: 10 points
+  const matchedVerbs = findMatches(trimmed, ACTION_VERBS);
+  const verbPoints = matchedVerbs.length > 0 ? 10 : 0;
 
-  // Word count: up to 10 points
-  if (wordCount >= 300 && wordCount <= 700) {
-    score += 10;
-  } else if (wordCount >= 200) {
-    score += 5;
-  }
+  // 5) Length > 200 words: 10 points
+  const lengthPoints = wordCount > 200 ? 10 : 0;
 
-  // Negative formatting: penalize
-  score -= negatives.length * 5;
+  const score = Math.min(100, skillPoints + experiencePoints + educationPoints + verbPoints + lengthPoints);
 
-  // Clean formatting bonus: up to 10 points
-  if (negatives.length === 0) {
-    score += 10;
-  }
-
-  score = Math.max(0, Math.min(100, score));
-
-  const topMissing = missing.slice(0, 10);
-  const tips = generateTips(topMissing, foundSections, negatives, wordCount);
+  const tips = generateTips(
+    missingSkills,
+    matchedExperience.length > 0,
+    matchedEducation.length > 0,
+    matchedVerbs.length > 0,
+    wordCount,
+  );
 
   return {
     score,
-    matchedKeywords: matched,
-    missingKeywords: topMissing,
+    matchedKeywords: matchedSkills,
+    missingKeywords: missingSkills.slice(0, 10),
     tips,
+    charCount,
   };
 }
