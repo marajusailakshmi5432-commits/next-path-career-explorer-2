@@ -4,6 +4,7 @@ import { Footer } from '@/components/Footer';
 import { SkillPicker } from '@/components/SkillPicker';
 import { RoleExplorer } from '@/components/RoleExplorer';
 import { CompanyPrep } from '@/components/CompanyPrep';
+import { ATSChecker } from '@/components/ATSChecker';
 
 const GENERAL_SKILLS = [
   'Communication', 'MS Excel', 'Problem Solving', 'Customer Support',
@@ -70,6 +71,8 @@ export default function App() {
         />
 
         <CompanyPrep selectedSkills={selectedSkills} />
+
+        <ATSChecker />
       </main>
 
       <Footer />
